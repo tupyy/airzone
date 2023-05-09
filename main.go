@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
 
 var (
@@ -38,7 +38,7 @@ func work(url string, systemID, zoneID int) func() {
 	return func() {
 		hvac, err := DoHVAC(url, systemID, zoneID)
 		if err != nil {
-			log.Printf("error fetching hvac data: %s", err)
+			zap.S().Error(err)
 		}
 		for _, zone := range hvac.Zones {
 			UpdateTemperatureMetric(zone.Name, zone.RoomTemp)
@@ -48,6 +48,15 @@ func work(url string, systemID, zoneID int) func() {
 }
 
 func main() {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+
+	undo := zap.ReplaceGlobals(logger)
+	defer undo()
+
 	flag.IntVar(&systemID, "system-id", 1, "system id. default to 0")
 	flag.IntVar(&zoneID, "zone-id", 0, "Default to 0 (all zones)")
 	flag.StringVar(&url, "url", "airzone:3000", "airzone local url. Example: 192.168.1.1:3000")
@@ -61,7 +70,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	fmt.Printf("start worker.ticking every %d seconds\n", reqInterval)
+	zap.S().Infof("start worker.ticking every %d seconds\n", reqInterval)
 
 	go worker(ctx, t.C, work(url, systemID, zoneID))
 

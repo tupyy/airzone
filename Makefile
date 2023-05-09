@@ -51,7 +51,7 @@ help.all:
 NAME=airzone
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
-IMAGE_TAG=$(VERSION)-$(GIT_COMMIT)
+IMAGE_TAG=$(GIT_COMMIT)
 IMAGE_NAME=$(NAME)
 
 #help build.prepare: prepare target/ folder
@@ -61,6 +61,7 @@ build.prepare:
 
 #help build.vendor: retrieve all the dependencies used for the project
 build.vendor:
+	go mod tidy
 	go mod vendor
 
 #help build.vendor.full: retrieve all the dependencies after cleaning the go.sum
@@ -69,14 +70,33 @@ build.vendor.full:
 	go mod vendor
 
 #help build.docker: build a docker image
-build.docker:
+build.podman:
 	podman build --build-arg build_args="$(BUILD_ARGS)"  -t $(IMAGE_NAME):$(IMAGE_TAG) -f Containerfile .
 
 build.local:
 	go build -o $(CURDIR)/target/hvac *.go
 
+#####################
+# Run               #
+#####################
+
+.PHONY: run.docker.stop run.docker.logs run.infra run.infra.stop 
+
 ZONEID=0
 SYSTEMID=1
-AIRZONE_URL="airzone:3000"
+AIRZONE_URL="192.168.1.217:3000"
+#help run.docker: run the application on a container
+run.podman:
+	podman run -it --rm -p 8080:8080 --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
+	@podman logs -f $(NAME) | $(COLORIZE)
+
+#help run.podman.stop: stop the container of the application
+run.podman.stop:
+	podman stop $(NAME)
+
+#help run.podman.logs: display logs from the application in the container
+run.podman.logs:
+	podman logs -f $(NAME) | $(COLORIZE)
+
 run:
 	$(CURDIR)/target/hvac --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
