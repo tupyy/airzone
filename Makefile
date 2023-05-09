@@ -87,7 +87,7 @@ SYSTEMID=1
 AIRZONE_URL="192.168.1.217:3000"
 #help run.docker: run the application on a container
 run.podman:
-	podman run -it --rm -p 8080:8080 --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
+	podman run -d --rm -p 8080:8080 --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
 	@podman logs -f $(NAME) | $(COLORIZE)
 
 #help run.podman.stop: stop the container of the application
