@@ -49,6 +49,7 @@ help.all:
 .PHONY: build run
 
 NAME=airzone
+VERSION=1.0
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(GIT_COMMIT)
@@ -72,6 +73,10 @@ build.vendor.full:
 #help build.docker: build a docker image
 build.podman:
 	podman build --build-arg build_args="$(BUILD_ARGS)"  -t $(IMAGE_NAME):$(IMAGE_TAG) -f Containerfile .
+
+build.podman.push:
+	podman tag $(IMAGE_NAME):$(IMAGE_TAG) quay.io/ctupangiu/airzone:$(VERSION)
+	podman push quay.io/ctupangiu/airzone:$(VERSION)
 
 build.local:
 	go build -o $(CURDIR)/target/hvac *.go
