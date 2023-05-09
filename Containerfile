@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:experimental
-
 ####################################
 #  Setup env for build and checks  #
 ####################################
