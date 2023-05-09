@@ -1,13 +1,15 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"os"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	systemID int = 1
+	zoneID   int = 0
+	host     string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -26,13 +28,7 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.room-temp.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVarP(&host, "host", "", "airzone:3000", "airzone host url. Example: 192.168.1.1:3000")
+	rootCmd.PersistentFlags().IntVarP(&systemID, "system-id", "", 1, "system id. default to 1")
+	rootCmd.PersistentFlags().IntVarP(&zoneID, "zone-id", "", 0, "zone id. Defaults to 0 (all zones)")
 }

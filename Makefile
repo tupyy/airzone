@@ -79,7 +79,7 @@ build.podman.push:
 	podman push quay.io/ctupangiu/airzone:$(VERSION)
 
 build.local:
-	go build -o $(CURDIR)/target/hvac *.go
+	go build -o $(CURDIR)/target/hvac main.go
 
 #####################
 # Run               #
