@@ -4,23 +4,36 @@ type Hvac struct {
 	Zones []Zone `json:"data"`
 }
 
-type Zone struct {
-	ID           int     `json:"zoneID"`
-	Name         string  `json:"name"`
-	On           int     `json:"on"`
-	CoolSetPoint float64 `json:"coolsetpoint"`
-	CoolMaxTemp  float64 `json:"coolmaxtemp"`
-	CoolMinTemp  float64 `json:"coolmintemp"`
-	HeatSetPoint float64 `json:"heatsetpoint"`
-	HeatMaxTemp  float64 `json:"heatmaxtemp"`
-	HeatMinTemp  float64 `json:"heatmintemp"`
-	Mode         int64   `json:"mode"`
-	Modes        []int64 `json:"modes"`
-	RoomTemp     float64 `json:"roomTemp"`
-	Humidity     int64   `json:"humidity"`
+type Meta struct {
+	ID   int    `json:"zoneID"`
+	Name string `json:"name"`
 }
 
-type Payload struct {
+type Parameters struct {
+	On           int     `json:"on"`
+	CoolSetPoint float64 `json:"coolsetpoint,omitempty"`
+	CoolMaxTemp  float64 `json:"coolmaxtemp,omitemtpy"`
+	CoolMinTemp  float64 `json:"coolmintemp,omitempty"`
+	HeatSetPoint float64 `json:"heatsetpoint,omitempty"`
+	HeatMaxTemp  float64 `json:"heatmaxtemp,omitempty"`
+	HeatMinTemp  float64 `json:"heatmintemp,omitempty"`
+}
+
+type Zone struct {
+	Meta
+	Parameters
+	Mode     int64   `json:"mode"`
+	Modes    []int64 `json:"modes"`
+	RoomTemp float64 `json:"roomTemp"`
+	Humidity int64   `json:"humidity"`
+}
+
+type basePayload struct {
 	SystemID int `json:"systemID"`
 	ZoneID   int `json:"zoneID"`
+}
+
+type payload struct {
+	basePayload
+	Parameters
 }

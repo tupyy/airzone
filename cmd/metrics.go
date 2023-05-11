@@ -28,7 +28,7 @@ var (
 
 func work(url string, systemID, zoneID int) func() error {
 	return func() error {
-		hvac, err := hvac.GetData(url, systemID, zoneID)
+		hvac, err := hvac.GetData(context.TODO(), url, systemID, zoneID)
 		if err != nil {
 			return err
 		}

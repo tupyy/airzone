@@ -2,6 +2,7 @@ package hvac
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,36 +15,51 @@ const (
 	jsonContentType = "application/json"
 )
 
-func GetData(host string, systemID, zoneID int) (Hvac, error) {
-	p := Payload{SystemID: systemID, ZoneID: zoneID}
+func GetData(ctx context.Context, host string, systemID, zoneID int) (Hvac, error) {
+	p := basePayload{SystemID: systemID, ZoneID: zoneID}
 
-	payload, err := json.Marshal(p)
-	if err != nil {
-		return Hvac{}, err
+	url := fmt.Sprintf(base_url, host)
+
+	return do(ctx, http.MethodPost, url, p, func(data []byte) (Hvac, error) {
+		var hvac = Hvac{}
+		if err := json.Unmarshal(data, &hvac); err != nil {
+			return Hvac{}, err
+		}
+
+		return hvac, nil
+	})
+}
+
+func Start(ctx context.Context, host string, systemID, zoneID int, on bool) (Hvac, error) {
+	action := 0
+	if on {
+		action = 1
+	}
+	p := payload{
+		basePayload: basePayload{
+			SystemID: systemID,
+			ZoneID:   zoneID,
+		},
+		Parameters: Parameters{
+			On: action,
+		},
 	}
 
 	url := fmt.Sprintf(base_url, host)
-	resp, err := http.Post(url, jsonContentType, bytes.NewBuffer(payload))
-	if err != nil {
-		return Hvac{}, err
-	}
-	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return Hvac{}, err
-	}
+	return do(ctx, http.MethodPut, url, p, func(data []byte) (Hvac, error) {
+		var hvac = Hvac{}
+		if err := json.Unmarshal(data, &hvac); err != nil {
+			return Hvac{}, err
+		}
 
-	var hvac = Hvac{}
-	if err := json.Unmarshal(data, &hvac); err != nil {
-		return Hvac{}, err
-	}
+		return hvac, nil
+	})
 
-	return hvac, nil
 }
 
-func GetZoneNames(host string, systemID int) (map[string]int, error) {
-	data, err := GetData(host, systemID, 0)
+func GetZoneNames(ctx context.Context, host string, systemID int) (map[string]int, error) {
+	data, err := GetData(ctx, host, systemID, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -52,4 +68,32 @@ func GetZoneNames(host string, systemID int) (map[string]int, error) {
 		names[strings.ToLower(z.Name)] = z.ID
 	}
 	return names, nil
+}
+
+func do[T any](ctx context.Context, method, host string, payload interface{}, readFn func(data []byte) (T, error)) (T, error) {
+	var emptyResponse T
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return emptyResponse, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, host, bytes.NewBuffer(data))
+	if err != nil {
+		return emptyResponse, err
+	}
+	req.Header.Add("ContentType", jsonContentType)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return emptyResponse, err
+	}
+	defer resp.Body.Close()
+
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return emptyResponse, err
+	}
+
+	return readFn(content)
 }

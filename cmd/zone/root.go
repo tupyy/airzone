@@ -1,6 +1,7 @@
 package zone
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,28 +23,12 @@ var RootCmd = &cobra.Command{
 			return errors.New("Name or ZoneID is required")
 		}
 
-		// check if it is a zoneID or name
-		zoneName := ""
-		zoneID := -1
-		zoneID, err := strconv.Atoi(strings.ToLower(args[0]))
+		zoneID, err := GetZoneID(context.TODO(), args[0])
 		if err != nil {
-			zoneName = strings.ToLower(args[0])
+			return err
 		}
 
-		if zoneName != "" {
-			names, err := hvac.GetZoneNames(common.Host, common.SystemID)
-			if err != nil {
-				return err
-			}
-			id, ok := names[zoneName]
-			if !ok {
-				return fmt.Errorf("Zone %q not found", zoneName)
-			}
-			zoneID = id
-		}
-
-		fmt.Println(zoneID)
-		hvac, err := hvac.GetData(common.Host, common.SystemID, zoneID)
+		hvac, err := hvac.GetData(context.TODO(), common.Host, common.SystemID, zoneID)
 		if err != nil {
 			return err
 		}
@@ -54,4 +39,28 @@ var RootCmd = &cobra.Command{
 		fmt.Printf("%s", string(j))
 		return nil
 	},
+}
+
+func GetZoneID(ctx context.Context, arg string) (int, error) {
+	// check if it is a zoneID or name
+	zoneName := ""
+	zoneID := -1
+	zoneID, err := strconv.Atoi(strings.ToLower(arg))
+	if err != nil {
+		zoneName = strings.ToLower(arg)
+	}
+
+	if zoneName != "" {
+		names, err := hvac.GetZoneNames(ctx, common.Host, common.SystemID)
+		if err != nil {
+			return 0, err
+		}
+		id, ok := names[zoneName]
+		if !ok {
+			return 0, fmt.Errorf("Zone %q not found", zoneName)
+		}
+		zoneID = id
+	}
+
+	return zoneID, nil
 }

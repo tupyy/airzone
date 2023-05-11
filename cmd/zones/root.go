@@ -1,6 +1,7 @@
 package zones
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -15,7 +16,7 @@ var RootCmd = &cobra.Command{
 	Short:        "Control all the zones all together.",
 	SilenceUsage: true,
 	RunE: func(c *cobra.Command, args []string) error {
-		hvac, err := hvac.GetData(common.Host, common.SystemID, common.AllZones)
+		hvac, err := hvac.GetData(context.TODO(), common.Host, common.SystemID, common.AllZones)
 		if err != nil {
 			return err
 		}
