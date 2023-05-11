@@ -10,10 +10,15 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+	"github.com/tupyy/airzone/cmd/common"
 	"github.com/tupyy/airzone/internal/hvac"
 	"github.com/tupyy/airzone/internal/metrics"
 	"github.com/tupyy/airzone/internal/worker"
 	"go.uber.org/zap"
+)
+
+const (
+	allZones = 0
 )
 
 var (
@@ -23,7 +28,7 @@ var (
 
 func work(url string, systemID, zoneID int) func() error {
 	return func() error {
-		hvac, err := hvac.DoHVAC(url, systemID, zoneID)
+		hvac, err := hvac.GetData(url, systemID, zoneID)
 		if err != nil {
 			return err
 		}
@@ -38,8 +43,8 @@ func work(url string, systemID, zoneID int) func() error {
 // metricsCmd represents the metrics command
 var metricsCmd = &cobra.Command{
 	Use:   "metrics",
-	Short: "Push metrics to prometheus",
-	Long: `This command starts a http server having sigle endpoint /metrics.
+	Short: "Start the metric server",
+	Long: `This command starts a http server having single endpoint /metrics.
 These metrics can be scraped by prometheus.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger, err := zap.NewProduction()
@@ -57,7 +62,7 @@ These metrics can be scraped by prometheus.`,
 
 		zap.S().Infof("start worker.ticking every %d seconds\n", reqInterval)
 
-		go worker.Worker(ctx, t.C, work(host, systemID, zoneID))
+		go worker.Worker(ctx, t.C, work(common.Host, common.SystemID, common.AllZones))
 
 		http.Handle("/metrics", promhttp.Handler())
 		go http.ListenAndServe(":8080", nil)
@@ -74,7 +79,7 @@ These metrics can be scraped by prometheus.`,
 }
 
 func init() {
-	rootCmd.AddCommand(metricsCmd)
+	RootCmd.AddCommand(metricsCmd)
 
 	metricsCmd.Flags().IntVarP(&httpPort, "port", "", 8080, "http port of the metric server")
 	metricsCmd.Flags().IntVarP(&reqInterval, "ticker", "", 10, "interval of request to airzone server")

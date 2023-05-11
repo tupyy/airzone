@@ -13,7 +13,7 @@ const (
 	jsonContentType = "application/json"
 )
 
-func DoHVAC(host string, systemID, zoneID int) (Hvac, error) {
+func GetData(host string, systemID, zoneID int) (Hvac, error) {
 	p := Payload{SystemID: systemID, ZoneID: zoneID}
 
 	payload, err := json.Marshal(p)
