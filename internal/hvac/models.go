@@ -5,6 +5,7 @@ type Hvac struct {
 }
 
 type Zone struct {
+	ID           int     `json:"zoneID"`
 	Name         string  `json:"name"`
 	On           int     `json:"on"`
 	CoolSetPoint float64 `json:"coolsetpoint"`

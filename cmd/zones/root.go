@@ -11,19 +11,19 @@ import (
 
 // rootZonesCmd represents the get command
 var RootCmd = &cobra.Command{
-	Use:   "zones",
-	Short: "Control all the zones all together.",
-	Run: func(c *cobra.Command, args []string) {
+	Use:          "zones",
+	Short:        "Control all the zones all together.",
+	SilenceUsage: true,
+	RunE: func(c *cobra.Command, args []string) error {
 		hvac, err := hvac.GetData(common.Host, common.SystemID, common.AllZones)
 		if err != nil {
-			fmt.Printf("%+v", err)
-			return
+			return err
 		}
 		j, err := json.Marshal(hvac)
 		if err != nil {
-			fmt.Printf("%+v", err)
-			return
+			return err
 		}
 		fmt.Printf("%s", string(j))
+		return nil
 	},
 }

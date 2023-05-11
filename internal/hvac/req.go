@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -39,4 +40,16 @@ func GetData(host string, systemID, zoneID int) (Hvac, error) {
 	}
 
 	return hvac, nil
+}
+
+func GetZoneNames(host string, systemID int) (map[string]int, error) {
+	data, err := GetData(host, systemID, 0)
+	if err != nil {
+		return nil, err
+	}
+	names := make(map[string]int)
+	for _, z := range data.Zones {
+		names[strings.ToLower(z.Name)] = z.ID
+	}
+	return names, nil
 }
