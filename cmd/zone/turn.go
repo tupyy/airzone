@@ -16,7 +16,7 @@ import (
 
 // turnCmd represents the turn command
 var turnCmd = &cobra.Command{
-	Use:           "turn",
+	Use:           "turn zoneID (on|off)",
 	SilenceErrors: true,
 	Short:         "Start or stop hvac for a zone",
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -30,6 +30,43 @@ func GetData(ctx context.Context, host string, systemID, zoneID int) (Hvac, erro
 	})
 }
 
+func SetTemperature(ctx context.Context, host string, systemID, zoneID int, temperature float64) (Hvac, error) {
+	mode, err := getMode(ctx, host, systemID)
+	if err != nil {
+		return Hvac{}, err
+	}
+
+	p := payload{
+		basePayload: basePayload{
+			SystemID: systemID,
+			ZoneID:   zoneID,
+		},
+	}
+
+	switch mode {
+	case HeatingMode:
+		p.HeatSetPoint = temperature
+	case CoollingMode:
+		p.CoolSetPoint = temperature
+	}
+
+	return set(ctx, host, p)
+}
+
+func SetMode(ctx context.Context, host string, systemID, zoneID int, mode Mode) (Hvac, error) {
+	p := payload{
+		basePayload: basePayload{
+			SystemID: systemID,
+			ZoneID:   zoneID,
+		},
+		Parameters: Parameters{
+			Mode: int64(mode),
+		},
+	}
+
+	return set(ctx, host, p)
+}
+
 func Start(ctx context.Context, host string, systemID, zoneID int, on bool) (Hvac, error) {
 	action := 0
 	if on {
@@ -45,17 +82,7 @@ func Start(ctx context.Context, host string, systemID, zoneID int, on bool) (Hva
 		},
 	}
 
-	url := fmt.Sprintf(base_url, host)
-
-	return do(ctx, http.MethodPut, url, p, func(data []byte) (Hvac, error) {
-		var hvac = Hvac{}
-		if err := json.Unmarshal(data, &hvac); err != nil {
-			return Hvac{}, err
-		}
-
-		return hvac, nil
-	})
-
+	return set(ctx, host, p)
 }
 
 func GetZoneNames(ctx context.Context, host string, systemID int) (map[string]int, error) {
@@ -68,6 +95,27 @@ func GetZoneNames(ctx context.Context, host string, systemID int) (map[string]in
 		names[strings.ToLower(z.Name)] = z.ID
 	}
 	return names, nil
+}
+
+func getMode(ctx context.Context, host string, systemID int) (Mode, error) {
+	data, err := GetData(ctx, host, systemID, 0)
+	if err != nil {
+		return 0, err
+	}
+	return Mode(data.Zones[0].Mode), nil
+}
+
+func set(ctx context.Context, host string, payload payload) (Hvac, error) {
+	url := fmt.Sprintf(base_url, host)
+
+	return do(ctx, http.MethodPut, url, payload, func(data []byte) (Hvac, error) {
+		var hvac = Hvac{}
+		if err := json.Unmarshal(data, &hvac); err != nil {
+			return Hvac{}, err
+		}
+
+		return hvac, nil
+	})
 }
 
 func do[T any](ctx context.Context, method, host string, payload interface{}, readFn func(data []byte) (T, error)) (T, error) {
