@@ -29,4 +29,5 @@ func init() {
 	RootCmd.AddCommand(zone.RootCmd)
 	RootCmd.PersistentFlags().StringVarP(&common.Host, "host", "", "airzone:3000", "airzone host url. Example: 192.168.1.1:3000")
 	RootCmd.PersistentFlags().IntVarP(&common.SystemID, "system-id", "", 1, "system id")
+	RootCmd.PersistentFlags().StringP("output", "o", "json", "output style.Acceptes json or table")
 }

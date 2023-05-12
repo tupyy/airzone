@@ -44,7 +44,13 @@ var turnCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%+v", resp)
+
+		outputValue, err := common.OutputPresenter(cmd)(resp)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s", outputValue)
+
 		return nil
 	},
 }

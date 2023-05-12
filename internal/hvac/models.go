@@ -2,6 +2,23 @@ package hvac
 
 type Mode int
 
+func (m Mode) String() string {
+	switch m {
+	case StopMode:
+		return "stop"
+	case CoollingMode:
+		return "cooling"
+	case HeatingMode:
+		return "heating"
+	case VentilationMode:
+		return "ventilation"
+	case Dehumidification:
+		return "dehumidification"
+	default:
+		return "unknown mode"
+	}
+}
+
 const (
 	StopMode Mode = 1 + iota
 	CoollingMode

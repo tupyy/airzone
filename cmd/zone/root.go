@@ -2,7 +2,6 @@ package zone
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -32,11 +31,13 @@ var RootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		j, err := json.Marshal(hvac)
+
+		value, err := common.OutputPresenter(cmd)(hvac)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s", string(j))
+		fmt.Printf("%s", value)
+
 		return nil
 	},
 }

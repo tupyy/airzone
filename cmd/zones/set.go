@@ -2,7 +2,6 @@ package zones
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -23,7 +22,7 @@ var setCmd = &cobra.Command{
 		}
 
 		parameter := args[0]
-		value := args[1]
+		outputValue := args[1]
 
 		if parameter != "temperature" && parameter != "mode" {
 			return fmt.Errorf("parameter to set %q unknown", parameter)
@@ -31,7 +30,7 @@ var setCmd = &cobra.Command{
 
 		if parameter == "mode" {
 			var m hvac.Mode
-			switch value {
+			switch outputValue {
 			case "cooling":
 				m = hvac.CoollingMode
 			case "heating":
@@ -41,7 +40,7 @@ var setCmd = &cobra.Command{
 			case "dehumidification":
 				m = hvac.Dehumidification
 			default:
-				return fmt.Errorf("unknown mode: %q", value)
+				return fmt.Errorf("unknown mode: %q", outputValue)
 			}
 
 			resp, err := hvac.SetMode(context.TODO(), common.Host, common.SystemID, common.AllZones, m)
@@ -49,17 +48,18 @@ var setCmd = &cobra.Command{
 				return err
 			}
 
-			j, err := json.Marshal(resp)
+			output, err := common.OutputPresenter(cmd)(resp)
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%s", string(j))
+			fmt.Printf("%s", output)
+
 			return nil
 		}
 
-		temperature, err := strconv.ParseFloat(value, 64)
+		temperature, err := strconv.ParseFloat(outputValue, 64)
 		if err != nil {
-			return fmt.Errorf("invalid temperature value: %q", value)
+			return fmt.Errorf("invalid temperature value: %q", outputValue)
 		}
 
 		resp, err := hvac.SetTemperature(context.TODO(), common.Host, common.SystemID, common.AllZones, temperature)
@@ -67,11 +67,11 @@ var setCmd = &cobra.Command{
 			return err
 		}
 
-		j, err := json.Marshal(resp)
+		output, err := common.OutputPresenter(cmd)(resp)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s", string(j))
+		fmt.Printf("%s", output)
 
 		return nil
 	},

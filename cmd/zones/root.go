@@ -2,7 +2,6 @@ package zones
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -20,11 +19,12 @@ var RootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		j, err := json.Marshal(hvac)
+
+		value, err := common.OutputPresenter(c)(hvac)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s", string(j))
+		fmt.Printf("%s", value)
 		return nil
 	},
 }
