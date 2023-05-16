@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	httpClient "github.com/tupyy/airzone/internal/http"
 )
 
 const (
@@ -132,7 +134,7 @@ func do[T any](ctx context.Context, method, host string, payload interface{}, re
 	}
 	req.Header.Add("ContentType", jsonContentType)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.GetClient().Do(req)
 	if err != nil {
 		return emptyResponse, err
 	}

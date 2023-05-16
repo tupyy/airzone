@@ -9,6 +9,8 @@ import (
 	"github.com/tupyy/airzone/cmd/zones"
 )
 
+var logLevel string
+
 // rootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "airzone",
@@ -30,4 +32,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&common.Host, "host", "", "airzone:3000", "airzone host url. Example: 192.168.1.1:3000")
 	RootCmd.PersistentFlags().IntVarP(&common.SystemID, "system-id", "", 1, "system id")
 	RootCmd.PersistentFlags().StringP("output", "o", "json", "output style.Acceptes json or table")
+	RootCmd.PersistentFlags().StringP("log-level", "", "debug", "Log level")
 }

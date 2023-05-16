@@ -49,11 +49,12 @@ help.all:
 .PHONY: build run
 
 NAME=airzone
-VERSION=1.2
+VERSION=1.3
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(GIT_COMMIT)
 IMAGE_NAME=$(NAME)
+LOCAL_BUILD_ARGS="-X main.CommitID=$(GIT_COMMIT)"
 
 #help build.prepare: prepare target/ folder
 build.prepare:
@@ -79,7 +80,7 @@ build.podman.push:
 	podman push quay.io/ctupangiu/airzone:$(VERSION)
 
 build.local:
-	go build -o $(CURDIR)/target/airzone main.go
+	go build -ldflags $(LOCAL_BUILD_ARGS) -o $(CURDIR)/target/airzone main.go
 
 #####################
 # Run               #
@@ -105,7 +106,7 @@ run.podman.logs:
 	podman logs -f $(NAME) | $(COLORIZE)
 
 run:
-	$(CURDIR)/target/hvac --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
+	$(CURDIR)/target/airzone metrics --host $(AIRZONE_URL) --system-id $(SYSTEMID) 
 
 metrics/run:
 	PROMETHEUS_CONFIG_FILE=$(PWD)/resources/prometheus.yaml $(COMPOSE_CMD) -f $(PWD)/resources/docker-compose.yaml up -d

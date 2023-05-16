@@ -1,13 +1,9 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
-
-func init() {
-	prometheus.MustRegister(tempCounter)
-	prometheus.MustRegister(humidityCounter)
-	prometheus.MustRegister(zoneStateCounter)
-	prometheus.MustRegister(modeCounter)
-}
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"go.uber.org/zap"
+)
 
 var (
 	labels = []string{
@@ -50,11 +46,19 @@ var (
 	)
 )
 
+func init() {
+	prometheus.MustRegister(tempCounter)
+	prometheus.MustRegister(humidityCounter)
+	prometheus.MustRegister(zoneStateCounter)
+	prometheus.MustRegister(modeCounter)
+}
+
 func UpdateTemperatureMetric(room string, temp float64) {
 	labels := prometheus.Labels{
 		"room": room,
 	}
 	tempCounter.With(labels).Set(temp)
+	zap.S().Debugw("temperature metrics updated", "value", temp)
 }
 
 func UpdateHumidityMetric(room string, humidity int) {
@@ -62,6 +66,7 @@ func UpdateHumidityMetric(room string, humidity int) {
 		"room": room,
 	}
 	humidityCounter.With(labels).Set(float64(humidity))
+	zap.S().Debugw("humidity metrics updated", "value", humidity)
 }
 
 func UpdateZoneStateMetric(room string, state int) {
@@ -69,8 +74,10 @@ func UpdateZoneStateMetric(room string, state int) {
 		"room": room,
 	}
 	zoneStateCounter.With(labels).Set(float64(state))
+	zap.S().Debugw("state metrics updated", "value", state)
 }
 
 func UpdateModeMetric(mode int) {
 	modeCounter.Set(float64(mode))
+	zap.S().Debugw("mode metrics updated", "value", mode)
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -50,10 +49,7 @@ var metricsCmd = &cobra.Command{
 	Long: `This command starts a http server having single endpoint /metrics.
 These metrics can be scraped by prometheus.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger, err := zap.NewProduction()
-		if err != nil {
-			log.Fatalf("can't initialize zap logger: %v", err)
-		}
+		logger := common.SetupLogger(cmd.Flag("log-level").Value.String())
 		defer logger.Sync()
 
 		undo := zap.ReplaceGlobals(logger)

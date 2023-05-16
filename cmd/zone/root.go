@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tupyy/airzone/cmd/common"
 	"github.com/tupyy/airzone/internal/hvac"
+	"go.uber.org/zap"
 )
 
 // zoneCmd represents the zone command
@@ -18,6 +19,12 @@ var RootCmd = &cobra.Command{
 	Short:        "Control one zone only.",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		logger := common.SetupLogger(cmd.Flag("log-level").Value.String())
+		defer logger.Sync()
+
+		undo := zap.ReplaceGlobals(logger)
+		defer undo()
+
 		if len(args) == 0 {
 			return errors.New("Name or ZoneID is required")
 		}
