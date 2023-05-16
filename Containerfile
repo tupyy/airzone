@@ -18,6 +18,6 @@ RUN GOOS=linux GOARCH=amd64 make build.local BUILD_ARGS="${build_args}"
 ################
 FROM gcr.io/distroless/base
 
-COPY --from=build /app/target/hvac /usr/bin/run
+COPY --from=build /app/target/airzone /usr/bin/run
 
 ENTRYPOINT ["/usr/bin/run"]
