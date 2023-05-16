@@ -35,7 +35,10 @@ func work(url string, systemID, zoneID int) func() error {
 		for _, zone := range hvac.Zones {
 			metrics.UpdateTemperatureMetric(zone.Name, zone.RoomTemp)
 			metrics.UpdateHumidityMetric(zone.Name, int(zone.Humidity))
+			metrics.UpdateZoneStateMetric(zone.Name, zone.On)
 		}
+		metrics.UpdateModeMetric(int(hvac.Zones[0].Mode))
+
 		return nil
 	}
 }

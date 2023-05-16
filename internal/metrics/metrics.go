@@ -5,6 +5,8 @@ import "github.com/prometheus/client_golang/prometheus"
 func init() {
 	prometheus.MustRegister(tempCounter)
 	prometheus.MustRegister(humidityCounter)
+	prometheus.MustRegister(zoneStateCounter)
+	prometheus.MustRegister(modeCounter)
 }
 
 var (
@@ -27,6 +29,21 @@ var (
 		},
 		labels,
 	)
+
+	zoneStateCounter = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "state",
+			Help: "Zone state",
+		},
+		labels,
+	)
+
+	modeCounter = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "mode",
+			Help: "Mode",
+		},
+	)
 )
 
 func UpdateTemperatureMetric(room string, temp float64) {
@@ -41,4 +58,15 @@ func UpdateHumidityMetric(room string, humidity int) {
 		"room": room,
 	}
 	humidityCounter.With(labels).Set(float64(humidity))
+}
+
+func UpdateZoneStateMetric(room string, state int) {
+	labels := prometheus.Labels{
+		"room": room,
+	}
+	zoneStateCounter.With(labels).Set(float64(state))
+}
+
+func UpdateModeMetric(mode int) {
+	modeCounter.Set(float64(mode))
 }
