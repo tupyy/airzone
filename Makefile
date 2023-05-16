@@ -49,7 +49,7 @@ help.all:
 .PHONY: build run
 
 NAME=airzone
-VERSION=1.1
+VERSION=1.2
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(GIT_COMMIT)

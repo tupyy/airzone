@@ -16,32 +16,36 @@ var (
 
 	tempCounter = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "temperature",
-			Help: "Room temperature",
+			Subsystem: "airzone",
+			Name:      "temperature",
+			Help:      "Room temperature",
 		},
 		labels,
 	)
 
 	humidityCounter = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "humidity",
-			Help: "Room humidity",
+			Subsystem: "airzone",
+			Name:      "humidity",
+			Help:      "Room humidity",
 		},
 		labels,
 	)
 
 	zoneStateCounter = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "state",
-			Help: "Zone state",
+			Subsystem: "airzone",
+			Name:      "state",
+			Help:      "Zone state",
 		},
 		labels,
 	)
 
 	modeCounter = prometheus.NewGauge(
 		prometheus.GaugeOpts{
-			Name: "mode",
-			Help: "Mode",
+			Subsystem: "airzone",
+			Name:      "mode",
+			Help:      "Mode",
 		},
 	)
 )
