@@ -49,7 +49,7 @@ help.all:
 .PHONY: build run
 
 NAME=airzone
-VERSION=1.0
+VERSION=1.1
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(GIT_COMMIT)
@@ -87,6 +87,7 @@ build.local:
 
 .PHONY: run.docker.stop run.docker.logs run.infra run.infra.stop 
 
+COMPOSE_CMD=podman-compose
 ZONEID=0
 SYSTEMID=1
 AIRZONE_URL="192.168.1.217:3000"
@@ -105,3 +106,9 @@ run.podman.logs:
 
 run:
 	$(CURDIR)/target/hvac --url $(AIRZONE_URL) --system-id $(SYSTEMID) --zone-id $(ZONEID)
+
+metrics/run:
+	PROMETHEUS_CONFIG_FILE=$(PWD)/resources/prometheus.yaml $(COMPOSE_CMD) -f $(PWD)/resources/docker-compose.yaml up -d
+
+metrics/stop:
+	$(COMPOSE_CMD) -f $(PWD)/resources/docker-compose.yaml down
