@@ -13,11 +13,16 @@ import (
 
 // setCmd represents the set command
 var setCmd = &cobra.Command{
-	Use:           "set",
-	Short:         "Set temperature or mode for all zones",
-	SilenceErrors: true,
+	Use:   "set [mode | temperature] [ modes | temperature ]",
+	Short: "Set temperature or mode for all zones",
+	Example: `
+	airzone zone set mode heating
+	airzone zone set temperature 21
+	`,
+	SilenceErrors: false,
+	SilenceUsage:  false,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 2 {
+		if len(args)%2 != 0 {
 			return errors.New("temperature or mode arguments expected")
 		}
 
@@ -25,7 +30,7 @@ var setCmd = &cobra.Command{
 		outputValue := args[1]
 
 		if parameter != "temperature" && parameter != "mode" {
-			return fmt.Errorf("parameter to set %q unknown", parameter)
+			return fmt.Errorf("parameter %q unknown", parameter)
 		}
 
 		if parameter == "mode" {

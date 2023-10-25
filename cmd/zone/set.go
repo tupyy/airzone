@@ -16,7 +16,7 @@ var setCmd = &cobra.Command{
 	Use:           "set temperature zone value",
 	Short:         "Set temperature for a particular zone",
 	SilenceErrors: false,
-	SilenceUsage:  true,
+	SilenceUsage:  false,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 3 {
 			return errors.New("temperature arguments expected")
